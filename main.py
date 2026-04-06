@@ -1,36 +1,42 @@
+#—————————————————— IMPORTS –——————————————————#
 import pygame
 from pygame.locals import *
 
-# Cargamos las bibliotecas de OpenGL
+# OpenGL libraries
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+import pandas as pd
+import numpy as np
 import math
 import os
-import numpy as np
-import pandas as pd
 
-# Se carga el archivo de la clase Cubo
+# Files
 import sys
 sys.path.append('..')
-#from Pacman import Pacman
+from Pacman import Pacman
 #from Ghost import Ghost
 
-screen_width = 800
+#—————————————— GLOBAL VARIABLES ——————————————#
 screen_height = 800
+screen_width = 800
 
-#Variables para dibujar los ejes del sistema
-X_MIN=-500
-X_MAX=500
-Y_MIN=-500
-Y_MAX=500
-#Dimension del plano
+X_MIN = -500
+X_MAX = 500
+Y_MIN = -500
+Y_MAX = 500
+
+# Key stack
+key_stack = []
+
+# Plane dimensions
 DimBoard = 400
 
-#Arreglo para el manejo de texturas
+# List for texture handling
 textures = []
-#Nombre de los archivos a usar
+
+# File names
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 file_1 = os.path.join(BASE_PATH, 'mapa.bmp')
 img_pacman = os.path.join(BASE_PATH, 'pacman.bmp')
@@ -70,7 +76,7 @@ XPxToMC[242] = 6
 XPxToMC[286] = 7
 XPxToMC[328] = 8
 XPxToMC[358] = 9
- 
+
 yMC = [0,51,90,130,168,208,244,282,320,360]
 #YPxToMC = np.zeros((361,), dtype=int)
 YPxToMC = np.full(361, -1, dtype=int)
@@ -90,13 +96,11 @@ path = []
 grid = []
 
 #pacman
-#pc = Pacman(matrix, MC, XPxToMC, YPxToMC)
+pc = Pacman(matrix, MC, XPxToMC, YPxToMC)
 #fantasmas
-#ghosts = []
+# ghosts = []
 
-
-pygame.init()
-
+#————————————————— FUNCTIONS ——————————————————#
 def Axis():
     glShadeModel(GL_FLAT)
     glLineWidth(3.0)
@@ -126,8 +130,8 @@ def Texturas(filepath):
     w, h = image.get_rect().size
     image_data = pygame.image.tostring(image,"RGBA")
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data)
-    glGenerateMipmap(GL_TEXTURE_2D) 
-    
+    glGenerateMipmap(GL_TEXTURE_2D)
+
 def Init():
     screen = pygame.display.set_mode(
         (400, 400), DOUBLEBUF | OPENGL)
@@ -141,7 +145,7 @@ def Init():
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     #textures[0]: plano
     Texturas(file_1)
-    #textures[1]: pacman
+    textures[1]: pacman
     Texturas(img_pacman)
     #textures[2]: fantasma1
     Texturas(img_ghost1)
@@ -152,18 +156,18 @@ def Init():
     #textures[5]: fantasma4
     Texturas(img_ghost4)
     #se pasan las texturas a los objetos
-    #pc.loadTextures(textures,1)
-    #ghosts[0].loadTextures(textures,2)
-    #ghosts[1].loadTextures(textures,3)
-    #ghosts[2].loadTextures(textures,4)
-    #ghosts[3].loadTextures(textures,5)
-    
+    pc.loadTextures(textures,1)
+    # ghosts[0].loadTextures(textures,2)
+    # ghosts[1].loadTextures(textures,3)
+    # ghosts[2].loadTextures(textures,4)
+    # ghosts[3].loadTextures(textures,5)
+
 def PlanoTexturizado():
-    #Activate textures
+    # Activate textures
     glColor3f(1.0,1.0,1.0)
     glEnable(GL_TEXTURE_2D)
-    #front face
-    glBindTexture(GL_TEXTURE_2D, textures[0])    
+    # Front face
+    glBindTexture(GL_TEXTURE_2D, textures[0])
     glBegin(GL_QUADS)
     glTexCoord2f(0.0, 0.0)
     glVertex2d(0, 0)
@@ -173,34 +177,50 @@ def PlanoTexturizado():
     glVertex2d(DimBoard, DimBoard)
     glTexCoord2f(1.0, 0.0)
     glVertex2d(DimBoard, 0)
-    glEnd()              
+    glEnd()
     glDisable(GL_TEXTURE_2D)
-    
-def display():
+
+def display(keys):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     Axis()
     PlanoTexturizado()
-    #pc.draw()
+    dir = 0
+    if(keys == pygame.K_UP):
+        dir = 1
+    if(keys == pygame.K_RIGHT):
+        dir = 2
+    if(keys == pygame.K_DOWN):
+        dir = 3
+    if(keys == pygame.K_LEFT):
+        dir = 4
+    pc.update(dir)
+    pc.draw()
     #for g in ghosts:
     #    g.draw()
     #    g.update2(pc.position)
-    
-done = False
+
+#———————————————————— MAIN ————————————————————#
+pygame.init()
+run = True
 Init()
 
-while not done:
+while run:
+    # Keyboard input
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                done = True
-    
+            pressed = event.key
+            key_stack.append(pressed)
+            # Exit case
+            if pressed == pygame.K_ESCAPE:
+                run = False
+
+    # Clean stack
     keys = pygame.key.get_pressed()
-
-
-    display()
+    while key_stack and not keys[key_stack[-1]]:
+        key_stack.pop()
+    # Update and display game
+    display(key_stack[-1] if key_stack else None)
     pygame.display.flip()
     pygame.time.wait(10)
 
 pygame.quit()
-    
-
