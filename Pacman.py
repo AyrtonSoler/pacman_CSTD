@@ -26,6 +26,7 @@ class Pacman:
         self.Id = id
 
     def update(self, dir):
+        # Can not decide
         if(dir == 1):
             self.pos[1] -= 1
         if(dir == 2):
@@ -35,6 +36,12 @@ class Pacman:
         if(dir == 4):
             self.pos[0] -= 1
         return
+        '''
+        1 – UP
+        2 – RIGHT
+        3 – DOWN
+        4 – LEFT
+        '''
 
 
     def draw(self):
