@@ -17,8 +17,9 @@ class Pacman:
         self.XPxToMC = x_mc     # vector with x-coords
         self.YPxToMC = y_mc     # vector with y-coords
         self.mapa = mapa        # map in pixels
-        self.start = 1          # starting point bool
+        self.pos = [190, 216]   # starting position
         self.size = 20          # draw size
+        self.dir = 0            # not moving
 
     def loadTextures(self, textures, id):
         self.textures = textures
