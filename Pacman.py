@@ -25,13 +25,14 @@ class Pacman:
         self.Id = id
 
     def update(self, dir):
-        if self.start:
-            self.start = 0
-            self.pos = [190, 216]
-            return
-        else:
-            # Go to fast fruit
+        if(dir == 1):
             self.pos[1] -= 1
+        if(dir == 2):
+            self.pos[0] += 1
+        if(dir == 3):
+            self.pos[1] += 1
+        if(dir == 4):
+            self.pos[0] -= 1
         return
 
 
