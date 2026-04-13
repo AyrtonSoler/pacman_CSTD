@@ -47,25 +47,27 @@ img_ghost4 = os.path.join(BASE_PATH, 'fantasma4.bmp')
 
 
 file_csv = os.path.join(BASE_PATH, 'mapa.csv')
-matrix = np.array(pd.io.parsers.read_csv(file_csv, header=None)).astype("int")
+matrix = np.array(pd.io.parsers.read_csv(file_csv, header = None)).astype("int")
 
-#Matriz de Control para mapeo entre pixeles <-> coord donde se localizan esquinas
+# Control matrix
 MC = [
-    [10,0,21,0,11,10,0,21,0,11],
-    [24,0,25,21,23,23,21,25,0,22],
-    [12,0,22,12,11,10,13,24,0,13],
-    [0,0,0,10,23,23,11,0,0,0],
-    [26,0,25,22,0,0,24,25,0,27],
-    [0,0,0,24,0,0,22,0,0,0],
-    [10,0,25,23,11,10,23,25,0,11],
-    [12,11,24,21,23,23,21,22,10,13],
-    [10,23,13,12,11,10,13,12,23,11],
-    [12,0,0,0,23,23,0,0,0,13]
+    [6, 10, 14, 10, 12, 6, 10, 14, 10, 12],
+    [7, 10, 15, 14, 11, 11, 14, 15, 10, 13],
+    [3, 10, 13, 3, 12, 6, 9, 7, 10, 9],
+    [0, 0, 5, 6, 11, 11, 12, 5, 0, 0],
+    [2, 10, 15, 13, 10, 10, 7, 15, 10, 8],
+    [0, 0, 5, 7, 10, 10, 13, 5, 0, 0],
+    [6, 10, 15, 11, 12, 6, 11, 15, 10, 12],
+    [3, 12, 7, 14, 11, 11, 14, 13, 6, 9],
+    [6, 11, 9, 3, 12, 6, 9, 3, 11, 12],
+    [3, 10, 10, 10, 11, 11, 10, 10, 10, 9],
 ]
 
-xMC = [0,30,71,114,156,199,242,286,328,358]
+xMC = [0, 30, 71, 114, 156, 199, 242, 286, 328, 358]
+yMC = [0, 51, 90, 130, 168, 208, 244, 282, 320, 360]
+XPxToMC = np.full(361, -1, dtype=int)
+YPxToMC = np.full(361, -1, dtype=int)
 
-XPxToMC = np.full(359, -1, dtype=int)
 XPxToMC[0] = 0
 XPxToMC[30] = 1
 XPxToMC[71] = 2
@@ -77,9 +79,6 @@ XPxToMC[286] = 7
 XPxToMC[328] = 8
 XPxToMC[358] = 9
 
-yMC = [0,51,90,130,168,208,244,282,320,360]
-#YPxToMC = np.zeros((361,), dtype=int)
-YPxToMC = np.full(361, -1, dtype=int)
 YPxToMC[0] = 0
 YPxToMC[51] = 1
 YPxToMC[90] = 2
@@ -91,11 +90,11 @@ YPxToMC[282] = 7
 YPxToMC[320] = 8
 YPxToMC[360] = 9
 
-#pathfinding variables
+# Pathfinding variables
 path = []
 grid = []
 
-#pacman
+# Pacman
 pc = Pacman(matrix, MC, XPxToMC, YPxToMC)
 #fantasmas
 # ghosts = []
@@ -200,7 +199,9 @@ def display(keys):
     #    g.update2(pc.position)
 
 #———————————————————— MAIN ————————————————————#
+last_key = None
 pygame.init()
+counter = 0
 run = True
 Init()
 
@@ -219,7 +220,11 @@ while run:
     while key_stack and not keys[key_stack[-1]]:
         key_stack.pop()
     # Update and display game
-    display(key_stack[-1] if key_stack else None)
+    if key_stack:
+       last_key = key_stack[-1]
+       counter = 0
+    counter += 1
+    display(key_stack[-1] if key_stack else last_key)
     pygame.display.flip()
     pygame.time.wait(10)
 
