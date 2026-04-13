@@ -16,7 +16,7 @@ import os
 import sys
 sys.path.append('..')
 from Pacman import Pacman
-#from Ghost import Ghost
+from Ghost import Ghost
 
 #—————————————— GLOBAL VARIABLES ——————————————#
 screen_height = 800
@@ -95,9 +95,11 @@ path = []
 grid = []
 
 # Pacman
-pc = Pacman(matrix, MC, XPxToMC, YPxToMC)
+pacman = Pacman(matrix, MC, XPxToMC, YPxToMC)
 #fantasmas
-# ghosts = []
+ghosts = []
+for i in range(4):
+    ghosts.append(Ghost(matrix, MC, XPxToMC, YPxToMC, i))
 
 #————————————————— FUNCTIONS ——————————————————#
 def Axis():
@@ -117,7 +119,7 @@ def Axis():
     glEnd()
     glLineWidth(1.0)
 
-def Texturas(filepath):
+def Textures(filepath):
     textures.append(glGenTextures(1))
     id = len(textures) - 1
     glBindTexture(GL_TEXTURE_2D, textures[id])
@@ -142,24 +144,22 @@ def Init():
     glLoadIdentity()
     glClearColor(0,0,0,0)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    #textures[0]: plano
-    Texturas(file_1)
-    textures[1]: pacman
-    Texturas(img_pacman)
-    #textures[2]: fantasma1
-    Texturas(img_ghost1)
+    # textures[0]: plano
+    Textures(file_1)
+    # textures[1]: pacman
+    Textures(img_pacman)
+    # textures[2]: fantasma1
+    Textures(img_ghost1)
     #textures[3]: fantasma2
-    Texturas(img_ghost2)
+    Textures(img_ghost2)
     #textures[4]: fantasma3
-    Texturas(img_ghost3)
+    Textures(img_ghost3)
     #textures[5]: fantasma4
-    Texturas(img_ghost4)
+    Textures(img_ghost4)
     #se pasan las texturas a los objetos
-    pc.loadTextures(textures,1)
-    # ghosts[0].loadTextures(textures,2)
-    # ghosts[1].loadTextures(textures,3)
-    # ghosts[2].loadTextures(textures,4)
-    # ghosts[3].loadTextures(textures,5)
+    pacman.loadTextures(textures[1])
+    for i in range(4):
+        ghosts[i].loadTextures(textures[i + 2])
 
 def PlanoTexturizado():
     # Activate textures
@@ -192,11 +192,15 @@ def display(keys):
         dir = 3
     if(keys == pygame.K_LEFT):
         dir = 4
-    pc.update(dir)
-    pc.draw()
-    #for g in ghosts:
-    #    g.draw()
-    #    g.update2(pc.position)
+    pacman.update(dir)
+    pacman.draw()
+    ghosts[0].update(pacman.pos)
+    ghosts[0].draw()
+    '''
+    for g in ghosts:
+       g.update(pacman.pos)
+       g.draw()
+    '''
 
 #———————————————————— MAIN ————————————————————#
 last_key = None
