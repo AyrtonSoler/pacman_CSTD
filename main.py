@@ -159,4 +159,13 @@ while run:
     pygame.display.flip()
     pygame.time.wait(10)
     offset += 1
+    # Collision
+    for g in ghosts:
+        if abs(pacman.pos[0] - g.pos[0]) < 18 and abs(pacman.pos[1] - g.pos[1]) < 18:
+            print("\033[H\033[2J", end="")
+            print(" ———————————")
+            print("| Game Over |")
+            print(" ———————————")
+            run = False
+
 pygame.quit()
