@@ -51,7 +51,7 @@ class Ghost:
         return
 
     def random(self):
-        # Go out of the box
+        # Go of the box
         if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
             self.dir = choice([2, 4])
         # Get MC coords
@@ -76,74 +76,12 @@ class Ghost:
         return
 
     def follow(self, pacmanXY):
-        # Go out of the box
-        if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
-            self.dir = choice([2, 4])
-        # Get MC coords
-        x = self.xPXtoMC[self.pos[0]]
-        y = self.yPXtoMC[self.pos[1]]
-
-        #Check intersection
-        if(x >= 0 and y >= 0):
-            # Get possible options
-            options = []
-            for i in range(4):
-                if self.MC[y][x] & 2 ** (i):
-                    options.append(i + 1)
-            # Delete returns (if another option exists)
-            go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
-            if len(options) > 1:
-                options.remove(go_back)
-            #Calculate future positions
-            future_nodes = []
-            for i in options:
-                fx, fy = x, y
-                match i:
-                    case 1:         # UP
-                        fy -= 1
-                    case 2:         #RIGHT
-                        fx += 1
-                    case 3:         #DOWN
-                        fy += 1
-                    case 4:         #LEFT
-                        fx -= 1
-
-                future_nodes.append((fx, fy))
-            #Calculate distance
-            distance = []
-            for (fx, fy) in future_nodes:
-                #translate node to Pixels (like the movie [Adam Sandler, 2015])
-                px = self.xPXtoMC[fx]
-                py = self.yPXtoMC[fy]
-                #Manhattan
-                d = abs(pacmanXY[0] - px) + abs(pacmanXY[1] - py)
-                #euclidian
-                #d = (pacmanXY[0] - px)**2 + (pacmanXY[1] - py)**2
-                print(d)
-                distance.append(d)
-            # Choose
-            min_distance = min(distance)
-            #tie
-            candidates = []
-            for i in range(len(distance)):
-                if distance[i] == min_distance:
-                    candidates.append(options[i])
-            self.dir = choice(candidates)
-
-        # Move
-        match self.dir:
-            case 1:         # UP
-                self.pos[1] -= 1
-            case 2:         #RIGHT
-                self.pos[0] += 1
-            case 3:         #DOWN
-                self.pos[1] += 1
-            case 4:         #LEFT
-                self.pos[0] -= 1
+        # Temp
+        self.random()
         return
 
     def hunt(self, pacmanXY, ghostXY):
-        # Go out of the box
+        # Go of the box
         if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
             self.dir = choice([2, 4])
         # Get MC coords
