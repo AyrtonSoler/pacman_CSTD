@@ -19,7 +19,7 @@ class Ghost:
         self.xPXtoMC = xPXtoMC      # pixels to x-coords
         self.yPXtoMC = yPXtoMC      # pixels to y-coords
         self.pos = [180, 165]       # starting position
-        self.alpha = 0.5            # aggressiveness
+        self.alpha = 0.67           # aggressiveness
         self.type = type            # ghost type
         self.bounce = 1             # beginning idle
         self.size = 20              # draw size
