@@ -8,6 +8,7 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 
 # Other libraries
+from math import sqrt
 import numpy as np
 import sys
 import os
@@ -161,7 +162,7 @@ while run:
     offset += 1
     # Collision
     for g in ghosts:
-        if abs(pacman.pos[0] - g.pos[0]) < 18 and abs(pacman.pos[1] - g.pos[1]) < 18:
+        if sqrt((pacman.pos[0] - g.pos[0])**2 + (pacman.pos[1] - g.pos[1])**2) < 18:
             print("\033[H\033[2J", end="")
             print(" ———————————")
             print("| Game Over |")
