@@ -19,7 +19,7 @@ class Ghost:
         self.xPXtoMC = xPXtoMC      # pixels to x-coords
         self.yPXtoMC = yPXtoMC      # pixels to y-coords
         self.pos = [180, 165]       # starting position
-        self.alpha = 0.7            # aggressiveness
+        self.alpha = 0.5            # aggressiveness
         self.type = type            # ghost type
         self.bounce = 1             # beginning idle
         self.size = 20              # draw size
@@ -192,6 +192,8 @@ class Ghost:
         # Criteria: node is adjacent and is not the start
         while not self.adj(pacman, current) or current == start:
             current = heapq.heappop(open)
+            if self.node_id(current) in close:
+                continue
             close.append(self.node_id(current))
             parent[self.node_id(current)] = current[3]
             # Get neighbours
