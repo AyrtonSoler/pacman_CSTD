@@ -62,7 +62,7 @@ class Ghost:
             # Get possible options
             options = []
             for i in range(4):
-                if self.MC[y][x] & 2 ** (i):
+                if self.MC[y][x] & (1 << i):
                     options.append(i + 1)
             # Delete returns (if another option exists)
             # go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
@@ -88,7 +88,7 @@ class Ghost:
             # Get possible options
             options = []
             for i in range(4):
-                if self.MC[y][x] & 2 ** (i):
+                if self.MC[y][x] & (2 ** i):
                     options.append(i + 1)
             # Delete returns (if another option exists)
             go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
@@ -199,7 +199,7 @@ class Ghost:
             # Get neighbours
             neighbours = []
             for i in range(4):
-                if self.MC[current[2]][current[1]] & 2 ** (i):
+                if self.MC[current[2]][current[1]] & (1 << i):
                     dir = 1 if ((i + 1) & 2) else -1
                     if((i + 1) & 1):    # Vertical
                         neighbours.append([0, current[1], current[2] + dir, self.node_id(current)])
