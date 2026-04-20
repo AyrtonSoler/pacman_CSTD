@@ -1,0 +1,63 @@
+From main.py in functions:
+
+def Axis():
+    glShadeModel(GL_FLAT)
+    glLineWidth(3.0)
+    #X axis in red
+    glColor3f(1.0,0.0,0.0)
+    glBegin(GL_LINES)
+    glVertex3f(X_MIN,0.0,0.0)
+    glVertex3f(X_MAX,0.0,0.0)
+    glEnd()
+    #Y axis in green
+    glColor3f(0.0,1.0,0.0)
+    glBegin(GL_LINES)
+    glVertex3f(0.0,Y_MIN,0.0)
+    glVertex3f(0.0,Y_MAX,0.0)
+    glEnd()
+    glLineWidth(1.0)
+
+Why? Axis were left behind and image and not visible anyways
+
+
+From main.py in main loop
+
+# Keyboard input
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            pressed = event.key
+            key_stack.append(pressed)
+            # Exit case
+            if pressed == pygame.K_ESCAPE:
+                run = False
+
+    # Clean stack
+    keys = pygame.key.get_pressed()
+    while key_stack and not keys[key_stack[-1]]:
+        key_stack.pop()
+    # Update and display game
+    if key_stack:
+       last_key = key_stack[-1]
+       counter = 0
+    counter += 1
+    display(key_stack[-1] if key_stack else last_key)
+
+Why? Unnecessary complex (worked well with the first version, but after some updates we do not need a stack for handling multiple keys and memoizing the order)
+
+
+From Pacman.py && Ghost.py
+
+    # Move
+    match self.dir:
+        case 1:         # UP
+            self.pos[1] -= 1
+        case 2:         #RIGHT
+            self.pos[0] += 1
+        case 3:         #DOWN
+            self.pos[1] += 1
+        case 4:         #LEFT
+            self.pos[0] -= 1
+
+
+Why? I replaced that with one line:
+    self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1

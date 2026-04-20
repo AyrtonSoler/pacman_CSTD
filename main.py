@@ -3,122 +3,76 @@ import pygame
 from pygame.locals import *
 
 # OpenGL libraries
-from OpenGL.GL import *
-from OpenGL.GLU import *
 from OpenGL.GLUT import *
+from OpenGL.GLU import *
+from OpenGL.GL import *
 
-import pandas as pd
+# Other libraries
 import numpy as np
-import math
+import sys
 import os
 
 # Files
-import sys
-sys.path.append('..')
 from Pacman import Pacman
 from Ghost import Ghost
+sys.path.append('..')
 
 #—————————————— GLOBAL VARIABLES ——————————————#
-screen_height = 800
-screen_width = 800
+dim_board = 400 # Plane dimensions
+textures = []   # List for texture handling
+offset = 0      # Timer for releasing ghosts
 
-X_MIN = -500
-X_MAX = 500
-Y_MIN = -500
-Y_MAX = 500
-
-# Key stack
-key_stack = []
-
-# Plane dimensions
-DimBoard = 400
-
-# List for texture handling
-textures = []
+# Dictionary for binding keys to directions
+directions = {
+    pygame.K_UP:    1,
+    pygame.K_RIGHT: 2,
+    pygame.K_DOWN:  3,
+    pygame.K_LEFT:  4,
+}
 
 # File names
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-file_1 = os.path.join(BASE_PATH, 'mapa.bmp')
-img_pacman = os.path.join(BASE_PATH, 'pacman.bmp')
 img_ghost1 = os.path.join(BASE_PATH, 'fantasma1.bmp')
 img_ghost2 = os.path.join(BASE_PATH, 'fantasma2.bmp')
 img_ghost3 = os.path.join(BASE_PATH, 'fantasma3.bmp')
 img_ghost4 = os.path.join(BASE_PATH, 'fantasma4.bmp')
-
-
-file_csv = os.path.join(BASE_PATH, 'mapa.csv')
-matrix = np.array(pd.io.parsers.read_csv(file_csv, header = None)).astype("int")
+img_pacman = os.path.join(BASE_PATH, 'pacman.bmp')
+file_1 = os.path.join(BASE_PATH, 'mapa.bmp')
 
 # Control matrix
 MC = [
-    [6, 10, 14, 10, 12, 6, 10, 14, 10, 12],
-    [7, 10, 15, 14, 11, 11, 14, 15, 10, 13],
-    [3, 10, 13, 3, 12, 6, 9, 7, 10, 9],
-    [0, 0, 5, 6, 11, 11, 12, 5, 0, 0],
-    [2, 10, 15, 13, 10, 10, 7, 15, 10, 8],
-    [0, 0, 5, 7, 10, 10, 13, 5, 0, 0],
-    [6, 10, 15, 11, 12, 6, 11, 15, 10, 12],
-    [3, 12, 7, 14, 11, 11, 14, 13, 6, 9],
-    [6, 11, 9, 3, 12, 6, 9, 3, 11, 12],
-    [3, 10, 10, 10, 11, 11, 10, 10, 10, 9],
+    [ 6, 10, 14, 10, 12,  6, 10, 14, 10, 12],
+    [ 7, 10, 15, 14, 11, 11, 14, 15, 10, 13],
+    [ 3, 10, 13,  3, 12,  6,  9,  7, 10,  9],
+    [ 0,  0,  5,  6, 11, 11, 12,  5,  0,  0],
+    [ 2, 10, 15, 13, 10, 10,  7, 15, 10,  8],
+    [ 0,  0,  5,  7, 10, 10, 13,  5,  0,  0],
+    [ 6, 10, 15, 11, 12,  6, 11, 15, 10, 12],
+    [ 3, 12,  7, 14, 11, 11, 14, 13,  6,  9],
+    [ 6, 11,  9,  3, 12,  6,  9,  3, 11, 12],
+    [ 3, 10, 10, 10, 11, 11, 10, 10, 10,  9],
 ]
 
 xMC = [0, 30, 71, 114, 156, 199, 242, 286, 328, 358]
 yMC = [0, 51, 90, 130, 168, 208, 244, 282, 320, 360]
-XPxToMC = np.full(361, -1, dtype=int)
-YPxToMC = np.full(361, -1, dtype=int)
 
-XPxToMC[0] = 0
-XPxToMC[30] = 1
-XPxToMC[71] = 2
-XPxToMC[114] = 3
-XPxToMC[156] = 4
-XPxToMC[199] = 5
-XPxToMC[242] = 6
-XPxToMC[286] = 7
-XPxToMC[328] = 8
-XPxToMC[358] = 9
+XPxToMC = np.full(361, -1, dtype = int)
+for idx, coord in enumerate(xMC):
+    XPxToMC[coord] = idx
 
-YPxToMC[0] = 0
-YPxToMC[51] = 1
-YPxToMC[90] = 2
-YPxToMC[130] = 3
-YPxToMC[168] = 4
-YPxToMC[208] = 5
-YPxToMC[244] = 6
-YPxToMC[282] = 7
-YPxToMC[320] = 8
-YPxToMC[360] = 9
-
-# Pathfinding variables
-path = []
-grid = []
+YPxToMC = np.full(361, -1, dtype = int)
+for idx, coord in enumerate(yMC):
+    YPxToMC[coord] = idx
 
 # Pacman
-pacman = Pacman(matrix, MC, XPxToMC, YPxToMC)
-#fantasmas
+pacman = Pacman(MC, XPxToMC, YPxToMC)
+
+# Ghosts
 ghosts = []
-for i in range(4):
-    ghosts.append(Ghost(matrix, MC, XPxToMC, YPxToMC, i))
+for type in range(4):
+    ghosts.append(Ghost(MC, xMC, yMC, XPxToMC, YPxToMC, type))
 
 #————————————————— FUNCTIONS ——————————————————#
-def Axis():
-    glShadeModel(GL_FLAT)
-    glLineWidth(3.0)
-    #X axis in red
-    glColor3f(1.0,0.0,0.0)
-    glBegin(GL_LINES)
-    glVertex3f(X_MIN,0.0,0.0)
-    glVertex3f(X_MAX,0.0,0.0)
-    glEnd()
-    #Y axis in green
-    glColor3f(0.0,1.0,0.0)
-    glBegin(GL_LINES)
-    glVertex3f(0.0,Y_MIN,0.0)
-    glVertex3f(0.0,Y_MAX,0.0)
-    glEnd()
-    glLineWidth(1.0)
-
 def Textures(filepath):
     textures.append(glGenTextures(1))
     id = len(textures) - 1
@@ -134,8 +88,7 @@ def Textures(filepath):
     glGenerateMipmap(GL_TEXTURE_2D)
 
 def Init():
-    screen = pygame.display.set_mode(
-        (400, 400), DOUBLEBUF | OPENGL)
+    screen = pygame.display.set_mode((400, 400), DOUBLEBUF | OPENGL)
     pygame.display.set_caption("OpenGL: cubos")
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -144,22 +97,16 @@ def Init():
     glLoadIdentity()
     glClearColor(0,0,0,0)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    # textures[0]: plano
-    Textures(file_1)
-    # textures[1]: pacman
-    Textures(img_pacman)
-    # textures[2]: fantasma1
-    Textures(img_ghost1)
-    #textures[3]: fantasma2
-    Textures(img_ghost2)
-    #textures[4]: fantasma3
-    Textures(img_ghost3)
-    #textures[5]: fantasma4
-    Textures(img_ghost4)
-    #se pasan las texturas a los objetos
+    Textures(file_1)        # textures[0]: plane
+    Textures(img_pacman)    # textures[1]: pacman
+    Textures(img_ghost1)    # textures[2]: ghost 1
+    Textures(img_ghost2)    # textures[3]: ghost 2
+    Textures(img_ghost3)    # textures[4]: ghost 3
+    Textures(img_ghost4)    # textures[5]: ghost 4
+    # Load textures to each object
     pacman.loadTextures(textures[1])
     for i in range(4):
-        ghosts[i].loadTextures(textures[i + 2])
+        ghosts[i].loadTextures(textures[5 - i])
 
 def PlanoTexturizado():
     # Activate textures
@@ -171,41 +118,30 @@ def PlanoTexturizado():
     glTexCoord2f(0.0, 0.0)
     glVertex2d(0, 0)
     glTexCoord2f(0.0, 1.0)
-    glVertex2d(0, DimBoard)
+    glVertex2d(0, dim_board)
     glTexCoord2f(1.0, 1.0)
-    glVertex2d(DimBoard, DimBoard)
+    glVertex2d(dim_board, dim_board)
     glTexCoord2f(1.0, 0.0)
-    glVertex2d(DimBoard, 0)
+    glVertex2d(dim_board, 0)
     glEnd()
     glDisable(GL_TEXTURE_2D)
 
-def display(keys):
+def display(key):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    Axis()
     PlanoTexturizado()
-    dir = 0
-    if(keys == pygame.K_UP):
-        dir = 1
-    if(keys == pygame.K_RIGHT):
-        dir = 2
-    if(keys == pygame.K_DOWN):
-        dir = 3
-    if(keys == pygame.K_LEFT):
-        dir = 4
+
     pacman.update(dir)
     pacman.draw()
-    ghosts[0].update(pacman.pos)
-    ghosts[0].draw()
-    '''
-    for g in ghosts:
-       g.update(pacman.pos)
-       g.draw()
-    '''
+
+    for i, g in enumerate(ghosts):
+        if(offset >=
+            20 * i):
+            g.update(pacman.pos, ghosts[2].pos, ghosts[3].pos) if offset >= 320 * i else g.vibe()
+        g.draw()
 
 #———————————————————— MAIN ————————————————————#
-last_key = None
 pygame.init()
-counter = 0
+last_key = 0
 run = True
 Init()
 
@@ -213,23 +149,14 @@ while run:
     # Keyboard input
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            pressed = event.key
-            key_stack.append(pressed)
+            last_key = event.key
             # Exit case
-            if pressed == pygame.K_ESCAPE:
+            if last_key == pygame.K_ESCAPE:
                 run = False
-
-    # Clean stack
-    keys = pygame.key.get_pressed()
-    while key_stack and not keys[key_stack[-1]]:
-        key_stack.pop()
-    # Update and display game
-    if key_stack:
-       last_key = key_stack[-1]
-       counter = 0
-    counter += 1
-    display(key_stack[-1] if key_stack else last_key)
+    # Display
+    dir = directions.get(last_key, 0)
+    display(dir)
     pygame.display.flip()
     pygame.time.wait(10)
-
+    offset += 1
 pygame.quit()
