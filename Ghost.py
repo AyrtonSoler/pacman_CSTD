@@ -25,8 +25,71 @@ class Ghost:
     def loadTextures(self, textures):
         self.textures = textures
 
-
+    #Dumb ghost
     def follow(self, pacmanXY):
+        #Nodes arent regular, needs translation to px
+        xMC = [0, 30, 71, 114, 156, 199, 242, 286, 328, 358]
+        yMC = [0, 51, 90, 130, 168, 208, 244, 282, 320, 360]
+        x = self.XPxToMC[self.pos[0]]
+        y = self.YPxToMC[self.pos[1]]
+        
+        #Check intersection
+        if(x >= 0 and y >= 0):
+            # Get possible options
+            options = []
+            for i in range(4):
+                if self.MC[y][x] & 2 ** (i):
+                    options.append(i + 1)
+            # Delete returns (if another option exists)
+            go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
+            if len(options) > 1:
+                options.remove(go_back)
+            #Calculate future positions
+            future_nodes = []
+            for i in options:
+                fx, fy = x, y
+                match i:
+                    case 1:         # UP
+                        fy -= 1
+                    case 2:         #RIGHT
+                        fx += 1
+                    case 3:         #DOWN
+                        fy += 1
+                    case 4:         #LEFT
+                        fx -= 1
+
+                future_nodes.append((fx, fy))
+            #Calculate distance
+            distance = []
+            for (fx, fy) in future_nodes:
+                #translate node to Pixels (like the movie [Adam Sandler, 2015])
+                px = xMC[fx]
+                py = yMC[fy]
+                #Manhattan
+                d = abs(pacmanXY[0] - px) + abs(pacmanXY[1] - py)
+                #euclidian
+                #d = (pacmanXY[0] - px)**2 + (pacmanXY[1] - py)**2
+                print(d)
+                distance.append(d)
+            # Choose
+            min_distance = min(distance)
+            #tie
+            candidates = []
+            for i in range(len(distance)):
+                if distance[i] == min_distance:
+                    candidates.append(options[i])
+            self.dir = choice(candidates)
+            
+        # Move
+        match self.dir:
+            case 1:         # UP
+                self.pos[1] -= 1
+            case 2:         #RIGHT
+                self.pos[0] += 1
+            case 3:         #DOWN
+                self.pos[1] += 1
+            case 4:         #LEFT
+                self.pos[0] -= 1
         return
 
     def random(self):
@@ -89,3 +152,4 @@ class Ghost:
         glEnd()
         glDisable(GL_TEXTURE_2D)
         return
+
