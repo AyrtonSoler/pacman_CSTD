@@ -38,10 +38,8 @@ class Ghost:
         # Move with an algorithm
         match self.type:
             case 0:
-                return
                 self.follow(pacman)
             case 1:
-                return
                 self.random()
             case 2:
                 self.hunt(pacman, ghost2)
