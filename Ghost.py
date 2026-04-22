@@ -14,12 +14,12 @@ import os
 #——————————————————— CLASS —–——————————————————#
 class Ghost:
     def __init__(self, mc, xMCtoPX, yMCtoPX, xPXtoMC, yPXtoMC, type):
+        self.cur_edge = [0, 0]      # edge the ghost is taking
         self.xMCtoPX = xMCtoPX      # x-coords to pixels
         self.yMCtoPX = yMCtoPX      # y-coords to pixels
         self.xPXtoMC = xPXtoMC      # pixels to x-coords
         self.yPXtoMC = yPXtoMC      # pixels to y-coords
         self.pos = [180, 165]       # starting position
-        self.alpha = 0.67           # aggressiveness
         self.type = type            # ghost type
         self.bounce = 1             # beginning idle
         self.size = 20              # draw size
@@ -31,10 +31,17 @@ class Ghost:
         self.textures = textures
 
     def update(self, pacman, ghost1, ghost2):
+        # Go out of the box
+        if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
+            self.dir = choice([2, 4])
+            return
+        # Move with an algorithm
         match self.type:
             case 0:
+                return
                 self.follow(pacman)
             case 1:
+                return
                 self.random()
             case 2:
                 self.hunt(pacman, ghost2)
@@ -65,20 +72,15 @@ class Ghost:
                 if self.MC[y][x] & (1 << i):
                     options.append(i + 1)
             # Delete returns (if another option exists)
-            # go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
             if len(options) > 1:
                 options.remove(self.dir - 2 if self.dir - 2 > 0 else self.dir + 2)
-
             # Choose
             self.dir = choice(options)
         # Move
         self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1
         return
 
-    def follow(self, pacmanXY):
-        # Go out of the box
-        if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
-            self.dir = choice([2, 4])
+    def follow(self, pacman):
         # Get MC coords
         x = self.xPXtoMC[self.pos[0]]
         y = self.yPXtoMC[self.pos[1]]
@@ -116,7 +118,7 @@ class Ghost:
                 px = self.xPXtoMC[fx]
                 py = self.yPXtoMC[fy]
                 #Manhattan
-                d = abs(pacmanXY[0] - px) + abs(pacmanXY[1] - py)
+                d = abs(pacman.pos[0] - px) + abs(pacman.pos[1] - py)
                 #euclidian
                 #d = (pacmanXY[0] - px)**2 + (pacmanXY[1] - py)**2
                 print(d)
@@ -143,19 +145,14 @@ class Ghost:
         return
 
 
-    def hunt(self, pacmanXY, ghostXY):
-        # Go of the box
-        if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
-            self.dir = choice([2, 4])
+    def hunt(self, pacman, ghost):
         # Get MC coords
         x = self.xPXtoMC[self.pos[0]]
         y = self.yPXtoMC[self.pos[1]]
         # If intersection, choose with A*
         if(x >= 0 and y >= 0):
-            self.dir = self.a_star([x, y], pacmanXY, ghostXY)
+            self.dir = self.a_star([x, y], pacman, ghost)
         # Move
-        if not self.dir:
-            return
         self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1
         return
 
@@ -188,9 +185,8 @@ class Ghost:
         open = [start]
         parent = {}
         close = []
-        a = 0
         # Criteria: node is adjacent and is not the start
-        while not self.adj(pacman, current) or current == start:
+        while not self.adj(pacman.pos, current) or current == start:
             current = heapq.heappop(open)
             if self.node_id(current) in close:
                 continue
@@ -212,21 +208,26 @@ class Ghost:
                     continue
                 # Get coords in pixels for current node and neighbours
                 current_coords = [self.xMCtoPX[current[1]], self.yMCtoPX[current[2]]]
-                neighbour_coords = [self.xMCtoPX[neighbour[1]], self.yMCtoPX[neighbour[2]]]
+                target_coords = [self.xMCtoPX[neighbour[1]], self.yMCtoPX[neighbour[2]]]
                 # Get distances to pacman, ghost and moving cost
-                d_pacman = self.manhattan_dist(pacman, neighbour_coords)
-                d_ghost = self.manhattan_dist(ghost, neighbour_coords)
+                d_pacman = self.manhattan_dist(pacman.pos, target_coords)
+                # d_ghost = self.manhattan_dist(ghost.pos, target_coords)
                 cost = self.manhattan_dist(neighbour, current_coords)
-                # Compute weight
-                neighbour[0] = cost + self.alpha * d_pacman - (1.0 - self.alpha) * d_ghost
+                # Compute weight, avoiding going back and following the other ghost path
+                if([self.node_id(neighbour), self.node_id(current)] == self.cur_edge):
+                    neighbour[0] = 1e9
+                elif([self.node_id(current), self.node_id(neighbour)] == ghost.cur_edge):
+                    neighbour[0] = 1e8
+                else:
+                    neighbour[0] = cost + d_pacman
                 heapq.heappush(open, neighbour)
-
         # Reconstruct path
         start = self.node_id(start)
         current = self.node_id(current)
         while parent.get(current) != start:
             current = parent[current]
-
+        # Avoid going back
+        self.cur_edge = [start, current]
         if current == start - 1:
             return 1
         if current == start + 10:

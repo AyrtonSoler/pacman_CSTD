@@ -135,9 +135,8 @@ def display(key):
     pacman.draw()
 
     for i, g in enumerate(ghosts):
-        if(offset >=
-            20 * i):
-            g.update(pacman.pos, ghosts[2].pos, ghosts[3].pos) if offset >= 320 * i else g.vibe()
+        if(offset >= 20 * i):
+            g.update(pacman, ghosts[2], ghosts[3]) if offset >= 320 * i else g.vibe()
         g.draw()
 
 #———————————————————— MAIN ————————————————————#
@@ -158,7 +157,7 @@ while run:
     dir = directions.get(last_key, 0)
     display(dir)
     pygame.display.flip()
-    pygame.time.wait(10)
+    pygame.time.wait(8)
     offset += 1
     # Collision
     for g in ghosts:
