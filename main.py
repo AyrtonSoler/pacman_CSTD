@@ -38,6 +38,8 @@ img_ghost2 = os.path.join(BASE_PATH, 'fantasma2.bmp')
 img_ghost3 = os.path.join(BASE_PATH, 'fantasma3.bmp')
 img_ghost4 = os.path.join(BASE_PATH, 'fantasma4.bmp')
 img_pacman = os.path.join(BASE_PATH, 'pacman.bmp')
+img_pacmanFull = os.path.join(BASE_PATH, 'pacmanFull.bmp')
+
 file_1 = os.path.join(BASE_PATH, 'mapa.bmp')
 
 # Control matrix
@@ -100,14 +102,15 @@ def Init():
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     Textures(file_1)        # textures[0]: plane
     Textures(img_pacman)    # textures[1]: pacman
+    Textures(img_pacmanFull)
     Textures(img_ghost1)    # textures[2]: ghost 1
     Textures(img_ghost2)    # textures[3]: ghost 2
     Textures(img_ghost3)    # textures[4]: ghost 3
     Textures(img_ghost4)    # textures[5]: ghost 4
     # Load textures to each object
-    pacman.loadTextures(textures[1])
+    pacman.loadTextures(textures[1:3])
     for i in range(4):
-        ghosts[i].loadTextures(textures[5 - i])
+        ghosts[i].loadTextures(textures[6 - i])
 
 def PlanoTexturizado():
     # Activate textures
