@@ -130,12 +130,16 @@ def PlanoTexturizado():
     glEnd()
     glDisable(GL_TEXTURE_2D)
 
-def display(key):
+def display(key, t):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     PlanoTexturizado()
 
     pacman.update(dir)
-    pacman.draw()
+    open_mouth = 1
+    if (t // 8) % 2 == 0: 
+        open_mouth = 0
+    pacman.update(dir)
+    pacman.draw(open_mouth)
 
     for i, g in enumerate(ghosts):
         if(offset >= 20 * i):
@@ -146,6 +150,7 @@ def display(key):
 pygame.init()
 last_key = 0
 run = True
+t = 0
 Init()
 
 while run:
@@ -162,6 +167,7 @@ while run:
     pygame.display.flip()
     pygame.time.wait(8)
     offset += 1
+    t+=1
     # Collision
     for g in ghosts:
         if sqrt((pacman.pos[0] - g.pos[0])**2 + (pacman.pos[1] - g.pos[1])**2) < 18:
