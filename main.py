@@ -66,7 +66,7 @@ for idx, coord in enumerate(yMC):
     YPxToMC[coord] = idx
 
 # Pacman
-pacman = Pacman(MC, XPxToMC, YPxToMC)
+pacman = Pacman(MC, XPxToMC, YPxToMC, xMC, yMC)
 
 # Ghosts
 ghosts = []
