@@ -57,23 +57,40 @@ class Pacman:
         print()
         return
 
-    def draw(self):
-        # Activate textures
-        glColor3f(1.0,1.0,1.0)
+    def draw(self, open):
+        # Activar texturas y color
+        glColor3f(1.0, 1.0, 1.0)
         glEnable(GL_TEXTURE_2D)
-        # Front face
-        glBindTexture(GL_TEXTURE_2D, self.textures)
-        glBegin(GL_QUADS)
+        glBindTexture(GL_TEXTURE_2D, self.textures[open])
+
+        glPushMatrix() # Guardamos el estado actual
+        
+        # 1. centro de la imagen
         shift = 10
-        glTexCoord2f(0.0, 0.0)
-        glVertex2d(self.pos[0] + shift, self.pos[1] + shift)
-        glTexCoord2f(0.0, 1.0)
-        glVertex2d(self.pos[0] + shift, self.pos[1] + shift + self.size)
-        glTexCoord2f(1.0, 1.0)
-        glVertex2d(self.pos[0] + shift + self.size, self.pos[1] + shift + self.size)
-        glTexCoord2f(1.0, 0.0)
-        glVertex2d(self.pos[0] + shift + self.size, self.pos[1] + shift)
+        half = self.size / 2
+        cx = self.pos[0] + shift + half
+        cy = self.pos[1] + shift + half
+        angle = 0
+        # 2. Trasladamos al centro del objeto
+        glTranslatef(cx, cy, 0)
+        match self.dir:
+            case 0: angle = 0
+            case 1: angle = 270
+            case 2: angle = 0
+            case 3: angle = 90
+            case 4: angle = 180
+        # 3. Rotamos (puedes usar la variable 'dir' aquí si son grados)
+        glRotatef(angle, 0, 0, 1) 
+
+        # 4. Dibujamos relativo al origen (0,0)
+        glBegin(GL_QUADS)
+        glTexCoord2f(0.0, 0.0); glVertex2d(-half, -half)
+        glTexCoord2f(0.0, 1.0); glVertex2d(-half,  half)
+        glTexCoord2f(1.0, 1.0); glVertex2d( half,  half)
+        glTexCoord2f(1.0, 0.0); glVertex2d( half, -half)
         glEnd()
+
+        glPopMatrix() # Restauramos el estado para que otros objetos no salgan rotados
         glDisable(GL_TEXTURE_2D)
         return
 
