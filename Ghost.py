@@ -13,10 +13,10 @@ import os
 
 #——————————————————— CLASS —–——————————————————#
 class Ghost:
-    def __init__(self, mc, xMCtoPX, yMCtoPX, xPXtoMC, yPXtoMC, type):
+    def __init__(self, mc, xMCtoPx, yMCtoPx, xPXtoMC, yPXtoMC, type):
         self.cur_edge = [0, 0]      # edge the ghost is taking
-        self.xMCtoPX = xMCtoPX      # x-coords to pixels
-        self.yMCtoPX = yMCtoPX      # y-coords to pixels
+        self.xMCtoPx = xMCtoPx      # x-coords to pixels
+        self.yMCtoPx = yMCtoPx      # y-coords to pixels
         self.xPXtoMC = xPXtoMC      # pixels to x-coords
         self.yPXtoMC = yPXtoMC      # pixels to y-coords
         self.pos = [180, 165]       # starting position
@@ -56,9 +56,6 @@ class Ghost:
         return
 
     def random(self):
-        # Go of the box
-        if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
-            self.dir = choice([2, 4])
         # Get MC coords
         x = self.xPXtoMC[self.pos[0]]
         y = self.yPXtoMC[self.pos[1]]
@@ -82,7 +79,6 @@ class Ghost:
         # Get MC coords
         x = self.xPXtoMC[self.pos[0]]
         y = self.yPXtoMC[self.pos[1]]
-
         #Check intersection
         if(x >= 0 and y >= 0):
             # Get possible options
@@ -94,52 +90,27 @@ class Ghost:
             go_back = self.dir - 2 if self.dir - 2 > 0 else self.dir + 2
             if len(options) > 1:
                 options.remove(go_back)
+            best_c = options[0]
+            best_d = 1e9
             #Calculate future positions
-            future_nodes = []
             for i in options:
-                fx, fy = x, y
-                match i:
-                    case 1:         # UP
-                        fy -= 1
-                    case 2:         #RIGHT
-                        fx += 1
-                    case 3:         #DOWN
-                        fy += 1
-                    case 4:         #LEFT
-                        fx -= 1
+                nx, ny = x, y
+                if i == 1:
+                    ny -= 1
+                elif i == 2:
+                    nx += 1
+                elif i == 3:
+                    ny += 1
+                elif i == 4:
+                    nx -= 1
 
-                future_nodes.append((fx, fy))
-            #Calculate distance
-            distance = []
-            for (fx, fy) in future_nodes:
-                #translate node to Pixels (like the movie [Adam Sandler, 2015])
-                px = self.xPXtoMC[fx]
-                py = self.yPXtoMC[fy]
-                #Manhattan
-                d = abs(pacman.pos[0] - px) + abs(pacman.pos[1] - py)
-                #euclidian
-                #d = (pacmanXY[0] - px)**2 + (pacmanXY[1] - py)**2
-                print(d)
-                distance.append(d)
-            # Choose
-            min_distance = min(distance)
-            #tie
-            candidates = []
-            for i in range(len(distance)):
-                if distance[i] == min_distance:
-                    candidates.append(options[i])
-            self.dir = choice(candidates)
-
+                d = (pacman.pos[0] - self.xMCtoPx[nx]) ** 2 + (pacman.pos[1] - self.yMCtoPx[ny]) ** 2
+                if(d < best_d):
+                    best_c = i
+                    best_d = d
+            self.dir = best_c
         # Move
-        match self.dir:
-            case 1:         # UP
-                self.pos[1] -= 1
-            case 2:         #RIGHT
-                self.pos[0] += 1
-            case 3:         #DOWN
-                self.pos[1] += 1
-            case 4:         #LEFT
-                self.pos[0] -= 1
+        self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1
         return
 
 
@@ -205,8 +176,8 @@ class Ghost:
                 if self.node_id(neighbour) in close:
                     continue
                 # Get coords in pixels for current node and neighbours
-                current_coords = [self.xMCtoPX[current[1]], self.yMCtoPX[current[2]]]
-                target_coords = [self.xMCtoPX[neighbour[1]], self.yMCtoPX[neighbour[2]]]
+                current_coords = [self.xMCtoPx[current[1]], self.yMCtoPx[current[2]]]
+                target_coords = [self.xMCtoPx[neighbour[1]], self.yMCtoPx[neighbour[2]]]
                 # Get distances to pacman, ghost and moving cost
                 d_pacman = self.manhattan_dist(pacman.pos, target_coords)
                 # d_ghost = self.manhattan_dist(ghost.pos, target_coords)
@@ -252,11 +223,11 @@ class Ghost:
         for n in neighbours:
             dir = 1 if (n & 2) else -1
             if (n & 1):     # Vertical
-                is_between = (self.yMCtoPX[yMC] - pacman[1]) * (self.yMCtoPX[yMC + dir] - pacman[1]) <= 0 and self.xMCtoPX[xMC] == pacman[0]
+                is_between = (self.yMCtoPx[yMC] - pacman[1]) * (self.yMCtoPx[yMC + dir] - pacman[1]) <= 0 and self.xMCtoPx[xMC] == pacman[0]
                 if is_between:
                     return True
             else:           # Horizontal
-                is_between = (self.xMCtoPX[xMC] - pacman[0]) * (self.xMCtoPX[xMC + dir] - pacman[0]) <= 0 and self.yMCtoPX[yMC] == pacman[1]
+                is_between = (self.xMCtoPx[xMC] - pacman[0]) * (self.xMCtoPx[xMC + dir] - pacman[0]) <= 0 and self.yMCtoPx[yMC] == pacman[1]
                 if is_between:
                    return True
         return False
