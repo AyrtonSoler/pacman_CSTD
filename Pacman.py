@@ -58,20 +58,17 @@ class Pacman:
         return
 
     def draw(self, open):
-        # Activar texturas y color
+        # Activate textures
         glColor3f(1.0, 1.0, 1.0)
         glEnable(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, self.textures[open])
-
-        glPushMatrix() # Guardamos el estado actual
-        
-        # 1. centro de la imagen
+        glPushMatrix()
+        # Image center and rotation
         shift = 10
         half = self.size / 2
         cx = self.pos[0] + shift + half
         cy = self.pos[1] + shift + half
         angle = 0
-        # 2. Trasladamos al centro del objeto
         glTranslatef(cx, cy, 0)
         match self.dir:
             case 0: angle = 0
@@ -79,18 +76,18 @@ class Pacman:
             case 2: angle = 0
             case 3: angle = 90
             case 4: angle = 180
-        # 3. Rotamos (puedes usar la variable 'dir' aquí si son grados)
-        glRotatef(angle, 0, 0, 1) 
-
-        # 4. Dibujamos relativo al origen (0,0)
+        glRotatef(angle, 0, 0, 1)
         glBegin(GL_QUADS)
-        glTexCoord2f(0.0, 0.0); glVertex2d(-half, -half)
-        glTexCoord2f(0.0, 1.0); glVertex2d(-half,  half)
-        glTexCoord2f(1.0, 1.0); glVertex2d( half,  half)
-        glTexCoord2f(1.0, 0.0); glVertex2d( half, -half)
+        glTexCoord2f(0.0, 0.0)
+        glVertex2d(-half, -half)
+        glTexCoord2f(0.0, 1.0)
+        glVertex2d(-half,  half)
+        glTexCoord2f(1.0, 1.0)
+        glVertex2d( half,  half)
+        glTexCoord2f(1.0, 0.0)
+        glVertex2d( half, -half)
         glEnd()
-
-        glPopMatrix() # Restauramos el estado para que otros objetos no salgan rotados
+        glPopMatrix()
         glDisable(GL_TEXTURE_2D)
         return
 

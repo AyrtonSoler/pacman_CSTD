@@ -33,7 +33,8 @@ class Ghost:
     def update(self, pacman, ghost1, ghost2):
         # Go out of the box
         if(self.pos[0] == 180 and self.pos[1] == 130 and self.dir == 1):
-            self.dir = choice([2, 4])
+            self.dir = choice([2, 4]) # Go left or right randomly
+            self.cur_edge = [43, 53] if self.dir & 2 else [53, 43]
             return
         # Move with an algorithm
         match self.type:
@@ -177,10 +178,9 @@ class Ghost:
                     continue
                 # Get coords in pixels for current node and neighbours
                 current_coords = [self.xMCtoPx[current[1]], self.yMCtoPx[current[2]]]
-                target_coords = [self.xMCtoPx[neighbour[1]], self.yMCtoPx[neighbour[2]]]
+                next_coords = [self.xMCtoPx[neighbour[1]], self.yMCtoPx[neighbour[2]]]
                 # Get distances to pacman, ghost and moving cost
-                d_pacman = self.manhattan_dist(pacman.pos, target_coords)
-                # d_ghost = self.manhattan_dist(ghost.pos, target_coords)
+                d_pacman = self.manhattan_dist(pacman.pos, next_coords)
                 cost = self.manhattan_dist(neighbour, current_coords)
                 # Compute weight, avoiding going back and following the other ghost path
                 if([self.node_id(neighbour), self.node_id(current)] == self.cur_edge):
