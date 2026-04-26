@@ -1,3 +1,21 @@
+From Pacman.py && Ghost.py
+
+    # Move
+    match self.dir:
+        case 1:         # UP
+            self.pos[1] -= 1
+        case 2:         #RIGHT
+            self.pos[0] += 1
+        case 3:         #DOWN
+            self.pos[1] += 1
+        case 4:         #LEFT
+            self.pos[0] -= 1
+
+
+Why? It was boring, I replaced that with one super cool line:
+    self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1
+
+
 From main.py in functions:
 
 def Axis():
@@ -44,20 +62,14 @@ From main.py in main loop
 
 Why? Unnecessary complex (worked well with the first version, but after some updates we do not need a stack for handling multiple keys and memoizing the order)
 
+From Pacman.py in self.update()
 
-From Pacman.py && Ghost.py
+for key in self.xMap:
+        print(len(self.xMap[key]), end = ' ')
+    print()
+    for key in self.yMap:
+        print(len(self.yMap[key]), end = ' ')
+    print()
+    print()
 
-    # Move
-    match self.dir:
-        case 1:         # UP
-            self.pos[1] -= 1
-        case 2:         #RIGHT
-            self.pos[0] += 1
-        case 3:         #DOWN
-            self.pos[1] += 1
-        case 4:         #LEFT
-            self.pos[0] -= 1
-
-
-Why? I replaced that with one line:
-    self.pos[(self.dir & 1)] += 1 if (self.dir & 2) else -1
+Why? No longer necessary to watch the segment-merging update for the eating-dot illusion. I already fixed it (or at least I believe so).
