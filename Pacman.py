@@ -1,3 +1,11 @@
+#—–—————————————————— Team —–——————————————————#
+# Franco De Escondrillas Vázquez | A01739410
+# Victor Ayrton Urrutia Soler | A01739157
+# Octavio Hernández Loyo | A01739304
+# Enrique Jiménez Cruz | A01739769
+# April 25th, 2026
+
+
 #—————————————————— IMPORTS –——————————————————#
 from sys import breakpointhook
 from OpenGL.GLUT import *
